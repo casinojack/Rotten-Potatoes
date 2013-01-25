@@ -9,6 +9,7 @@ class MoviesController < ApplicationController
   def index
     # store/retrieve sort order from session
     if params[:sort].blank?
+      redirect = true;
       params[:sort] = session[:sort]
     else
       session[:sort] = params[:sort]
@@ -16,6 +17,7 @@ class MoviesController < ApplicationController
 
     # store/retrieve ratings filter from session
     if params[:ratings].blank?
+      redirect = true;
       if session[:ratings].blank?
         session[:ratings] = params[:ratings] = Hash[Movie.ratings.map {|rating| [rating, 1]}]
       else
@@ -23,6 +25,11 @@ class MoviesController < ApplicationController
       end
     else
       session[:ratings] = params[:ratings]
+    end
+    
+    # redirect if params blank
+    if redirect
+      redirect_to movies_path(:sort => params[:sort], :ratings => params[:ratings])
     end
 
     @all_ratings = Movie.ratings
