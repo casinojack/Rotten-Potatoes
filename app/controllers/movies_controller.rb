@@ -7,7 +7,26 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all(:order => params[:sort])
+    # store/retrieve sort order from session
+    if params[:sort].blank?
+      params[:sort] = session[:sort]
+    else
+      session[:sort] = params[:sort]
+    end
+
+    # store/retrieve ratings filter from session
+    if params[:ratings].blank?
+      if session[:ratings].blank?
+        session[:ratings] = params[:ratings] = Hash[Movie.ratings.map {|rating| [rating, 1]}]
+      else
+        params[:ratings] = session[:ratings]
+      end
+    else
+      session[:ratings] = params[:ratings]
+    end
+
+    @all_ratings = Movie.ratings
+    @movies = Movie.filter(params[:ratings], params[:sort])
   end
 
   def new
